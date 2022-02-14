@@ -4,23 +4,8 @@ internal object Resources
 
 fun main(args: Array<String>) {
 
-
-    var errorScoreSum = 0
-
-    val inputText: List<String> = File(Resources.javaClass.classLoader.getResource("input_text.txt").toURI())
-        .readLines()
-    println(inputText)
-
     val legalPair = mapOf('(' to ')', '{' to '}', '[' to ']', '<' to '>')
-    println(legalPair.entries)
-
-
     val errorScore = mapOf(')' to 3, ']' to 57, '}' to 1197, '>' to 25137)
-
-
-    println(errorScore.entries)
-
-    var lineScore: Long = 0
 
     val score = mapOf<Char, Long>(
         ')' to 1,
@@ -28,55 +13,63 @@ fun main(args: Array<String>) {
         '}' to 3,
         '>' to 4
     )
+    var errorScoreSum = 0
+    var lineScore: Long = 0
 
-    val stackList = mutableListOf<Char>()
+    val chunkList = mutableListOf<Char>()
     val scores = mutableListOf<Long>()
 
-    inputText.forEach { input ->
-        println(input)
+    val inputText: List<String> = File(Resources.javaClass.classLoader.getResource("input_text.txt").toURI())
+        .readLines()
+
+
+
+    fun getErrorSum(): Int {
+        inputText.forEach { input ->
+            println(input)
             input.forEach { value ->
                 if (value in legalPair.keys) {
-                    stackList.add(value)
+                    chunkList.add(value)
                 } else {
-                    if (legalPair[stackList.removeLast()] != value) {
+                    if (legalPair[chunkList.removeLast()] != value) {
                         errorScoreSum += errorScore[value]!!
                     }
                 }
-        }
-    }
-
-    val flipList = mutableListOf<Char>()
-    stackList.forEach { ch_ ->
-        when(ch_){
-            '(' -> {
-                flipList.add(')')
-            }
-            '[' -> {
-                flipList.add(']')
-            }
-            '{' -> {
-                flipList.add('}')
-            }
-            '<' -> {
-                flipList.add('>')
             }
         }
+
+        return errorScoreSum
     }
 
-    flipList.forEach { _ch ->
-        lineScore = lineScore * 5 + score[_ch]!!
-        scores.add(lineScore)
-    }
+   fun getMiddleScore(): Long {
+       val flipList = mutableListOf<Char>()
+       chunkList.forEach { ch_ ->
+           when(ch_){
+               '(' -> {
+                   flipList.add(')')
+               }
+               '[' -> {
+                   flipList.add(']')
+               }
+               '{' -> {
+                   flipList.add('}')
+               }
+               '<' -> {
+                   flipList.add('>')
+               }
+           }
+       }
+
+       flipList.forEach { _ch ->
+           lineScore = lineScore * 5 + score[_ch]!!
+           scores.add(lineScore)
+       }
+       val midScore = scores[scores.size / 2]
+
+       return midScore
+   }
 
 
-    val midScore = scores[scores.size / 2]
-    println("midScore ::: ${midScore}")
-    println("scores ::: ${scores}")
-    println("flipList ::: ${flipList}")
-    println("lineScore ::: ${lineScore/2}")
-
-    println("FlipList size :: ${flipList.size}")
-    println("stackList :: ${stackList}")
-    println("stackList.size :: ${stackList.size}")
-    println("errorSum ::: $errorScoreSum")
+    println("midScore ::: ${getMiddleScore()}")
+    println("errorSum ::: ${getErrorSum()}")
 }
